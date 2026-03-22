@@ -24,7 +24,7 @@ export default function HatGallery({ hat, setHat, onClose }) {
             onClick={() => toggle(file)}
             title={name}
           >
-            <img src={`/sprites/${file}`} alt={name} draggable={false} />
+            <img src={`./sprites/${file}`} alt={name} draggable={false} />
             <span className="hat-gallery__label">{name}</span>
           </button>
         ))}
