@@ -1,0 +1,75 @@
+.avatar {
+  position: relative;
+  width: 280px;
+  height: 400px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Placeholder shown when no sprite PNGs are present yet */
+.avatar__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(100, 80, 200, 0.12);
+  border: 2px dashed rgba(100, 80, 200, 0.4);
+  border-radius: 16px;
+}
+
+.avatar__placeholder-label {
+  font-family: monospace;
+  font-size: 13px;
+  color: rgba(140, 110, 240, 0.9);
+  letter-spacing: 0.05em;
+}
+
+/* ── Expression animations ───────────────────────────────────────────────── */
+
+.avatar--idle img,
+.avatar--idle .avatar__placeholder {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.avatar--talking img,
+.avatar--talking .avatar__placeholder {
+  animation: talking 0.25s ease-in-out infinite alternate;
+}
+
+.avatar--reacting img,
+.avatar--reacting .avatar__placeholder {
+  animation: react 0.5s ease-out forwards;
+}
+
+.avatar--surprised img,
+.avatar--surprised .avatar__placeholder {
+  animation: surprised 0.4s ease-out forwards;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes talking {
+  from { transform: translateY(0px) scaleY(1); }
+  to   { transform: translateY(-2px) scaleY(1.01); }
+}
+
+@keyframes react {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes surprised {
+  0%   { transform: translateY(0px) scale(1); }
+  30%  { transform: translateY(-14px) scale(1.08); }
+  100% { transform: translateY(0px) scale(1); }
+}

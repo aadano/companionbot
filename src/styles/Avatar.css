@@ -1,0 +1,202 @@
+.avatar {
+  position: relative;
+  width: 280px;
+  height: 400px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Placeholder shown when no sprite PNGs are present */
+.avatar__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(100, 80, 200, 0.12);
+  border: 2px dashed rgba(100, 80, 200, 0.4);
+  border-radius: 16px;
+}
+
+.avatar__placeholder-label {
+  font-family: monospace;
+  font-size: 13px;
+  color: rgba(140, 110, 240, 0.9);
+  letter-spacing: 0.05em;
+}
+
+/* ── Expression animations ───────────────────────────────────────────────── */
+
+/* talking applies regardless of emotion */
+.avatar--talking img,
+.avatar--talking .avatar__placeholder {
+  animation: talking 0.2s ease-in-out infinite alternate;
+}
+
+/* idle — slow breathing float */
+.avatar--idle img,
+.avatar--idle .avatar__placeholder {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* happy — gentle bob */
+.avatar--happy img,
+.avatar--happy .avatar__placeholder {
+  animation: happy 2s ease-in-out infinite;
+}
+
+/* annoyed — subtle side-to-side sway */
+.avatar--annoyed img,
+.avatar--annoyed .avatar__placeholder {
+  animation: annoyed 1.8s ease-in-out infinite;
+}
+
+/* surprised — quick jump up */
+.avatar--surprised img,
+.avatar--surprised .avatar__placeholder {
+  animation: surprised 0.4s ease-out forwards;
+}
+
+/* smug — slow tilt */
+.avatar--smug img,
+.avatar--smug .avatar__placeholder {
+  animation: smug 3s ease-in-out infinite;
+}
+
+/* sad — slow droop */
+.avatar--sad img,
+.avatar--sad .avatar__placeholder {
+  animation: sad 3.5s ease-in-out infinite;
+}
+
+/* furious — rapid shake */
+.avatar--furious img,
+.avatar--furious .avatar__placeholder {
+  animation: furious 0.12s ease-in-out infinite alternate;
+}
+
+/* concerned — slow uncertain sway */
+.avatar--concerned img,
+.avatar--concerned .avatar__placeholder {
+  animation: concerned 2.5s ease-in-out infinite;
+}
+
+/* mortified — dramatic recoil */
+.avatar--mortified img,
+.avatar--mortified .avatar__placeholder {
+  animation: mortified 0.5s ease-out forwards;
+}
+
+/* curious — gentle head tilt */
+.avatar--curious img,
+.avatar--curious .avatar__placeholder {
+  animation: curious 3s ease-in-out infinite;
+}
+
+/* sleepy — slow heavy droop */
+.avatar--sleepy img,
+.avatar--sleepy .avatar__placeholder {
+  animation: sleepy 4s ease-in-out infinite;
+}
+
+/* oops — quick wince */
+.avatar--oops img,
+.avatar--oops .avatar__placeholder {
+  animation: oops 0.4s ease-out forwards;
+}
+
+/* dizzy — slow wobble */
+.avatar--dizzy img,
+.avatar--dizzy .avatar__placeholder {
+  animation: dizzy 0.6s ease-in-out infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes talking {
+  from { transform: translateY(0px) scaleY(1); }
+  to   { transform: translateY(-2px) scaleY(1.012); }
+}
+
+@keyframes happy {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  30%      { transform: translateY(-10px) scale(1.03); }
+  60%      { transform: translateY(-4px) scale(1.01); }
+}
+
+@keyframes annoyed {
+  0%, 100% { transform: rotate(0deg) translateX(0px); }
+  25%      { transform: rotate(-1deg) translateX(-3px); }
+  75%      { transform: rotate(1deg) translateX(3px); }
+}
+
+@keyframes surprised {
+  0%   { transform: translateY(0px) scale(1); }
+  25%  { transform: translateY(-18px) scale(1.08); }
+  60%  { transform: translateY(-6px) scale(1.03); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+@keyframes smug {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(-1.5deg) translateX(-2px); }
+  70%      { transform: rotate(0.5deg); }
+}
+
+@keyframes sad {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(4px); }
+}
+
+@keyframes furious {
+  from { transform: translateX(-3px) rotate(-0.5deg); }
+  to   { transform: translateX(3px)  rotate(0.5deg); }
+}
+
+@keyframes concerned {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  40%      { transform: translateY(-4px) rotate(-1deg); }
+  70%      { transform: translateY(-2px) rotate(0.5deg); }
+}
+
+@keyframes mortified {
+  0%   { transform: translateY(0px) scale(1); }
+  20%  { transform: translateY(-20px) scale(1.1); }
+  50%  { transform: translateY(-8px) scale(1.04); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+@keyframes curious {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  40%      { transform: rotate(-3deg) translateY(-3px); }
+  70%      { transform: rotate(1deg) translateY(-1px); }
+}
+
+@keyframes sleepy {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  30%      { transform: translateY(3px) rotate(1deg); }
+  60%      { transform: translateY(5px) rotate(2deg); }
+}
+
+@keyframes oops {
+  0%   { transform: scale(1) rotate(0deg); }
+  25%  { transform: scale(0.92) rotate(-2deg); }
+  60%  { transform: scale(1.03) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes dizzy {
+  0%   { transform: rotate(-2deg) translateX(-2px); }
+  50%  { transform: rotate(2deg) translateX(2px); }
+  100% { transform: rotate(-2deg) translateX(-2px); }
+}

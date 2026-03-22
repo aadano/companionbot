@@ -1,0 +1,44 @@
+{
+  "name": "teto-companion",
+  "version": "0.1.0",
+  "description": "Teto Desktop Companion",
+  "author": "aadano",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev":      "concurrently \"vite\" \"wait-on http://localhost:5173 && node launch-electron.js\"",
+    "build":    "vite build",
+    "start":    "electron .",
+    "package":  "vite build && electron-builder"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "vite": "^5.1.0",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "build": {
+    "appId": "com.teto.companion",
+    "productName": "Teto",
+    "asar": true,
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    }
+  }
+}
