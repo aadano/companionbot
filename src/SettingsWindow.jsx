@@ -7,6 +7,7 @@ const API_KEY_FIELDS = [
   { key: 'FISH_API_KEY',      label: 'Fish Audio Key',       placeholder: '',                 hint: 'Optional — enables Teto\'s voice. Get one at fish.audio → Dashboard.' },
   { key: 'FISH_REFERENCE_ID', label: 'Fish Reference ID',    placeholder: 'voice model id',   hint: 'Optional — the voice model ID from your Fish Audio dashboard.' },
   { key: 'GEMINI_API_KEY',    label: 'Gemini API Key',       placeholder: 'AIza...',          hint: 'Optional — fallback AI model. Get one at aistudio.google.com → Get API Key.' },
+  { key: 'TAVILY_API_KEY',    label: 'Tavily API Key',       placeholder: 'tvly-...',         hint: 'Optional — lets Teto look things up on the web. Get one at app.tavily.com.' },
 ]
 
 function Toggle({ checked, onChange }) {
@@ -47,6 +48,7 @@ export default function SettingsWindow() {
     // Apply appearance changes live
     if (key === 'windowOpacity') window.tetoAPI.applyAppearance({ opacity: val })
     if (key === 'alwaysOnTop')   window.tetoAPI.applyAppearance({ alwaysOnTop: val })
+    if (key === 'resizable')     window.tetoAPI.applyAppearance({ resizable: val })
   }
 
   async function handleSave() {
@@ -196,6 +198,13 @@ export default function SettingsWindow() {
               <Toggle
                 checked={cfg.alwaysOnTop !== false}
                 onChange={v => set('alwaysOnTop', v)}
+              />
+            </div>
+            <div className="sw__toggle-row">
+              <span className="sw__toggle-label">Resizable window</span>
+              <Toggle
+                checked={cfg.resizable !== false}
+                onChange={v => set('resizable', v)}
               />
             </div>
           </div>

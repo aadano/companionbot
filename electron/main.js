@@ -143,6 +143,7 @@ function registerIPC() {
       FISH_API_KEY:      stored.FISH_API_KEY      || process.env.FISH_API_KEY,
       FISH_REFERENCE_ID: stored.FISH_REFERENCE_ID || process.env.FISH_REFERENCE_ID,
       OPENAI_API_KEY:    stored.OPENAI_API_KEY    || process.env.OPENAI_API_KEY,
+      TAVILY_API_KEY:    stored.TAVILY_API_KEY    || process.env.TAVILY_API_KEY,
       // Behavior settings (read fresh each reload)
       REACTION_FREQUENCY:   stored.reactionFrequency  || 'normal',
       SCREEN_WATCH_ENABLED: stored.screenWatchEnabled !== false,
@@ -161,19 +162,21 @@ function registerIPC() {
       FISH_API_KEY:      stored.FISH_API_KEY      || process.env.FISH_API_KEY      || '',
       FISH_REFERENCE_ID: stored.FISH_REFERENCE_ID || process.env.FISH_REFERENCE_ID || '',
       OPENAI_API_KEY:    stored.OPENAI_API_KEY    || process.env.OPENAI_API_KEY    || '',
+      TAVILY_API_KEY:    stored.TAVILY_API_KEY    || process.env.TAVILY_API_KEY    || '',
       reactionFrequency:  stored.reactionFrequency  ?? 'normal',
       screenWatchEnabled: stored.screenWatchEnabled ?? true,
       screenSensitivity:  stored.screenSensitivity  ?? 'medium',
       gameIntensity:      stored.gameIntensity       ?? 'standard',
       windowOpacity:      stored.windowOpacity       ?? 1,
       alwaysOnTop:        stored.alwaysOnTop         ?? true,
+      resizable:          false,
       loginItemStartup:   app.getLoginItemSettings().openAtLogin,
     }
   })
 
   // ── Settings: write ────────────────────────────────────────────────────────
   ipcMain.handle('save-settings', (_event, updates) => {
-    const allowedKeys  = ['ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'FISH_API_KEY', 'FISH_REFERENCE_ID', 'OPENAI_API_KEY']
+    const allowedKeys  = ['ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'FISH_API_KEY', 'FISH_REFERENCE_ID', 'OPENAI_API_KEY', 'TAVILY_API_KEY']
     const allowedBools = ['screenWatchEnabled', 'alwaysOnTop', 'loginItemStartup']
     const allowedStr   = ['reactionFrequency', 'screenSensitivity', 'gameIntensity']
     const allowedNum   = ['windowOpacity']
@@ -194,9 +197,10 @@ function registerIPC() {
   })
 
   // ── Appearance: apply immediately (no reload) ──────────────────────────────
-  ipcMain.handle('apply-appearance', (_event, { opacity, alwaysOnTop }) => {
+  ipcMain.handle('apply-appearance', (_event, { opacity, alwaysOnTop, resizable }) => {
     if (opacity     != null) mainWindow?.webContents.send('set-ui-opacity', Math.min(1, Math.max(0.1, opacity)))
     if (alwaysOnTop != null) mainWindow?.setAlwaysOnTop(!!alwaysOnTop)
+    if (resizable   != null) mainWindow?.setResizable(!!resizable)
   })
 
   // ── Reload main renderer (flushes envCache in all services) ───────────────

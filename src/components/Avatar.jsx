@@ -23,6 +23,7 @@ const SPRITE_MAP = {
   'yawn':        'teto-yawn.gif',
   // talking variants
   'idle_talking':     'deadpan.png',
+  'pensive_talking':  'pensive-holdinglaptop.png',
   'happy_talking':    'beaming-orhappytalk.png',
   'smug_talking':     'smug-lowcortisol.png',
   'annoyed_talking':  ['annoyed1.png', 'annoyed2.png', 'annoyed3.png', 'neutral-serious-holdingbaguette.png'],

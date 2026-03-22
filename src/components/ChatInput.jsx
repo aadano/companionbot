@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useTeto } from '../App.jsx'
 import { chat } from '../services/claude.js'
 import { resetCooldown, pauseScreenWatch, resumeScreenWatch } from '../services/screenWatch.js'
+import { hasTavilyKey, searchWeb } from '../services/search.js'
 import { startRecording, stopRecording, transcribe } from '../services/voice.js'
 import '../styles/ChatInput.css'
 
 const SCREEN_KEYWORDS = /\b(look|see|screen|this|that|here|these|those|read|solve|check|show|what('?s| is| are)( on| this| that| here)?|can you (see|look|read|help)|help me (with|solve|read|understand)|do you see|what do you think of (this|that))\b/i
+const SEARCH_TRIGGER  = /\b(look\s+up|search\s+(for\s+)?|google|find\s+out(\s+about)?|what'?s\s+the\s+(latest|news)\s+(on|about)|tell\s+me\s+about)\b/i
 
 function needsScreenContext(text) {
   return SCREEN_KEYWORDS.test(text)
@@ -63,6 +65,14 @@ export default function ChatInput() {
     resumeScreenWatch()
     setErrorMsg('')
 
+    // ── Web search (optional — only if Tavily key is configured) ───────────────
+    let searchContext = null
+    if (SEARCH_TRIGGER.test(text) && await hasTavilyKey()) {
+      tetoSpeak("[short pause] let me look that up...", 'pensive')
+      searchContext = await searchWeb(text).catch(() => null)
+    }
+    // ── End web search ─────────────────────────────────────────────────────────
+
     if (!overrideText) {
       // Push to sent history (keep last 50), reset browse index
       sentHistoryRef.current = [...sentHistoryRef.current, text].slice(-50)
@@ -79,7 +89,8 @@ export default function ChatInput() {
         ? await window.tetoAPI.captureScreen().catch(() => null)
         : null
 
-      const result = await chat(historyRef.current, text, screenshot)
+      const augmented = searchContext ? `${text}\n\n[Web search results for context — use these to answer accurately, but respond as Teto, not as a search engine:]\n${searchContext}` : text
+      const result = await chat(historyRef.current, augmented, screenshot)
       historyRef.current = result.history
       const tetoText = stripTags(result.text)
       appendLog({ role: 'teto', text: tetoText })
