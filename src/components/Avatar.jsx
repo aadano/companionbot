@@ -39,7 +39,7 @@ function pickEntry(entry) {
 function buildCandidates(emotion, talking) {
   const resolve = (key, fallbackName) => {
     const picked = pickEntry(SPRITE_MAP[key])
-    return picked ? `./sprites/${picked}` : `./sprites/${fallbackName}`
+    return picked ? `/sprites/${picked}` : `/sprites/${fallbackName}`
   }
   if (talking) {
     return [
@@ -93,7 +93,7 @@ export default function Avatar({ emotion = 'idle', talking = false, hat = null, 
         {hat && (
           <div className="avatar__hat-wrap" style={{ top: hatTop }}>
             <img
-              src={`./sprites/${hat}`}
+              src={`/sprites/${hat}`}
               style={{ width: hatWidth }}
               draggable={false}
               alt=""
