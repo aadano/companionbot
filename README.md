@@ -113,5 +113,5 @@ Drop a PNG into `public/sprites/` and add an entry to `src/hats.js`:
 <p align="center">
   <img src="public/sprites/smug-lowcortisol.png" width="80" alt="Teto smug" />
   <br/>
-  <sub>she's not impressed, but she's here</sub>
+  <sub>the lowest cortisol</sub>
 </p>
