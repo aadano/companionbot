@@ -82,16 +82,6 @@ All settings are available in the in-app Settings window (⚙ button, or right-c
 | Resizable window | Allow dragging the window edge to resize |
 | Launch on startup | Start with Windows |
 
-## Adding accessories
-
-Drop a PNG into `public/sprites/` and add an entry to `src/hats.js`:
-
-```js
-{ id: 'myhat', name: 'My Hat', file: 'myhat.png', top: 25, width: 160 }
-```
-
-`top` is the vertical offset from the top of the avatar (in px). `width` is display width. Tune until it sits right.
-
 ## Hotkeys
 
 | Shortcut | Action |
