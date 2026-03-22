@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut } = require('electron')
+const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut, Tray, Menu, nativeImage } = require('electron')
 const path = require('path')
 require('dotenv').config({ path: path.join(__dirname, '../.env') })
 const { loadConfig, saveConfig } = require('./store')
@@ -16,6 +16,61 @@ const isDev = process.env.NODE_ENV !== 'production'
 let mainWindow
 let historyWindow
 let settingsWindow
+let tray = null
+let muteState = false
+
+// ── Settings window helper ─────────────────────────────────────────────────────
+function openOrFocusSettings() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) { settingsWindow.focus(); return }
+  settingsWindow = new BrowserWindow({
+    width: 420, height: 600,
+    title: 'Teto Settings',
+    frame: false, transparent: false, alwaysOnTop: true, resizable: false,
+    backgroundColor: '#0a0814',
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, webSecurity: false }
+  })
+  settingsWindow.on('closed', () => { settingsWindow = null })
+  if (isDev) settingsWindow.loadURL('http://localhost:5173?view=settings')
+  else settingsWindow.loadFile(path.join(__dirname, '../dist/index.html'), { query: { view: 'settings' } })
+}
+
+// ── Tray ───────────────────────────────────────────────────────────────────────
+function buildTrayMenu() {
+  return Menu.buildFromTemplate([
+    {
+      label: muteState ? 'Unmute Teto' : 'Mute Teto',
+      click: () => {
+        muteState = !muteState
+        mainWindow?.webContents.send('toggle-mute')
+        tray.setContextMenu(buildTrayMenu())
+      }
+    },
+    { type: 'separator' },
+    { label: 'Settings', click: openOrFocusSettings },
+    { label: 'Quit', click: () => app.quit() }
+  ])
+}
+
+function createTray() {
+  const iconPath = path.join(__dirname, '../public/sprites/idle.png')
+  let icon
+  try {
+    icon = nativeImage.createFromPath(iconPath)
+    if (!icon.isEmpty()) icon = icon.resize({ width: 16, height: 16 })
+    else icon = nativeImage.createEmpty()
+  } catch {
+    icon = nativeImage.createEmpty()
+  }
+  tray = new Tray(icon)
+  tray.setToolTip('Teto')
+  tray.setContextMenu(buildTrayMenu())
+  tray.on('click', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
+}
 
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
@@ -54,7 +109,9 @@ function createWindow() {
 
   // Global hotkeys
   globalShortcut.register('CommandOrControl+Shift+M', () => {
+    muteState = !muteState
     mainWindow?.webContents.send('toggle-mute')
+    tray?.setContextMenu(buildTrayMenu())
   })
 
   if (isDev) {
@@ -152,6 +209,12 @@ function registerIPC() {
     app.quit()
   })
 
+  // ── Sync mute state from renderer (keeps tray label accurate) ─────────────
+  ipcMain.handle('sync-mute-state', (_event, muted) => {
+    muteState = !!muted
+    tray?.setContextMenu(buildTrayMenu())
+  })
+
   // ── Chat history window ───────────────────────────────────────────────────
   ipcMain.handle('open-chat-history', () => {
     if (historyWindow && !historyWindow.isDestroyed()) { historyWindow.focus(); return }
@@ -167,19 +230,7 @@ function registerIPC() {
   })
 
   // ── Settings window ───────────────────────────────────────────────────────
-  ipcMain.handle('open-settings', () => {
-    if (settingsWindow && !settingsWindow.isDestroyed()) { settingsWindow.focus(); return }
-    settingsWindow = new BrowserWindow({
-      width: 420, height: 600,
-      title: 'Teto Settings',
-      frame: false, transparent: false, alwaysOnTop: true, resizable: false,
-      backgroundColor: '#0a0814',
-      webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, webSecurity: false }
-    })
-    settingsWindow.on('closed', () => { settingsWindow = null })
-    if (isDev) settingsWindow.loadURL('http://localhost:5173?view=settings')
-    else settingsWindow.loadFile(path.join(__dirname, '../dist/index.html'), { query: { view: 'settings' } })
-  })
+  ipcMain.handle('open-settings', openOrFocusSettings)
 }
 
 function sendEmotion(emotion, talking = false) {
@@ -189,14 +240,16 @@ function sendEmotion(emotion, talking = false) {
 app.whenReady().then(() => {
   registerIPC()
   createWindow()
+  createTray()
 })
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
 })
 
+// App lives in the tray — don't quit when windows are closed
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  // intentionally empty — quit only via tray menu or quit button
 })
 
 module.exports = { sendEmotion }

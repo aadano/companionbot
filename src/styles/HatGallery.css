@@ -1,0 +1,100 @@
+.hat-gallery {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: rgba(10, 8, 20, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(120, 90, 220, 0.18);
+  opacity: var(--ui-opacity, 1);
+  -webkit-app-region: no-drag;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.hat-gallery__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px 5px;
+}
+
+.hat-gallery__title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(130, 100, 240, 0.7);
+}
+
+.hat-gallery__close {
+  width: 18px;
+  height: 18px;
+  background: rgba(160, 40, 40, 0.25);
+  border: 1px solid rgba(220, 80, 80, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 140, 140, 0.65);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+  -webkit-app-region: no-drag;
+}
+.hat-gallery__close:hover { background: rgba(200, 50, 50, 0.45); color: #fff; }
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+.hat-gallery__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 10px 10px;
+  overflow-y: auto;
+  max-height: 130px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 90, 220, 0.3) transparent;
+  -webkit-app-region: no-drag;
+}
+
+/* ── Item ────────────────────────────────────────────────────────────────── */
+.hat-gallery__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 60px;
+  padding: 5px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(140, 110, 240, 0.18);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  -webkit-app-region: no-drag;
+}
+.hat-gallery__item:hover {
+  background: rgba(130, 90, 240, 0.18);
+  border-color: rgba(160, 120, 255, 0.4);
+}
+.hat-gallery__item--active {
+  background: rgba(130, 90, 240, 0.32);
+  border-color: rgba(180, 140, 255, 0.65);
+}
+
+.hat-gallery__item img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.hat-gallery__label {
+  font-size: 9px;
+  color: rgba(160, 140, 200, 0.65);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.hat-gallery__item--active .hat-gallery__label {
+  color: rgba(210, 190, 255, 0.9);
+}

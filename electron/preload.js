@@ -30,4 +30,5 @@ contextBridge.exposeInMainWorld('tetoAPI', {
   onToggleMute:       (cb)  => ipcRenderer.on('toggle-mute', cb),
   removeToggleMuteListener: () => ipcRenderer.removeAllListeners('toggle-mute'),
   quit:               ()    => ipcRenderer.invoke('quit-app'),
+  syncMuteState:      (m)   => ipcRenderer.invoke('sync-mute-state', m),
 })

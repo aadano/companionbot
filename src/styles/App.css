@@ -142,11 +142,45 @@
   color: rgba(255, 150, 150, 0.9);
 }
 
+/* ── Hat / accessories button ────────────────────────────────────────────── */
+.hat-btn {
+  position: absolute;
+  top: 6px;
+  left: 66px;
+  pointer-events: auto;
+  opacity: var(--ui-opacity, 1);
+  width: 22px;
+  height: 22px;
+  background: rgba(10, 8, 20, 0.55);
+  border: 1px solid rgba(120, 90, 220, 0.22);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.55;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  -webkit-app-region: no-drag;
+}
+.hat-btn:hover { opacity: 1; background: rgba(130, 90, 240, 0.25); border-color: rgba(160, 120, 255, 0.4); }
+.hat-btn--active {
+  opacity: 1;
+  border-color: rgba(180, 140, 255, 0.6);
+  background: rgba(100, 60, 200, 0.35);
+}
+.hat-btn--open {
+  opacity: 1;
+  background: rgba(100, 70, 200, 0.45);
+  border-color: rgba(160, 120, 255, 0.6);
+}
+
 /* ── Settings gear button ────────────────────────────────────────────────── */
 .gear-btn {
   position: absolute;
   top: 6px;
-  left: 66px;
+  left: 94px;
   pointer-events: auto;
   opacity: var(--ui-opacity, 1);
   width: 22px;
@@ -206,7 +240,7 @@
 .quit-btn {
   position: absolute;
   top: 6px;
-  left: 94px;
+  left: 122px;
   pointer-events: auto;
   opacity: var(--ui-opacity, 1);
   width: 22px;

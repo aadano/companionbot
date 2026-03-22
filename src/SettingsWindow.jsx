@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react'
 import './styles/SettingsWindow.css'
 
 const API_KEY_FIELDS = [
-  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic API Key',    placeholder: 'sk-ant-...' },
-  { key: 'OPENAI_API_KEY',    label: 'OpenAI API Key',       placeholder: 'sk-... (voice input / Whisper)' },
-  { key: 'FISH_API_KEY',      label: 'Fish Audio Key',       placeholder: '' },
-  { key: 'FISH_REFERENCE_ID', label: 'Fish Reference ID',    placeholder: 'voice model id' },
-  { key: 'GEMINI_API_KEY',    label: 'Gemini API Key',       placeholder: 'AIza... (optional fallback)' },
+  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic API Key',    placeholder: 'sk-ant-...',       hint: 'Required — powers Teto\'s brain. Get one at console.anthropic.com → API Keys.' },
+  { key: 'OPENAI_API_KEY',    label: 'OpenAI API Key',       placeholder: 'sk-...',           hint: 'Optional — enables voice input (Whisper). Get one at platform.openai.com → API Keys.' },
+  { key: 'FISH_API_KEY',      label: 'Fish Audio Key',       placeholder: '',                 hint: 'Optional — enables Teto\'s voice. Get one at fish.audio → Dashboard.' },
+  { key: 'FISH_REFERENCE_ID', label: 'Fish Reference ID',    placeholder: 'voice model id',   hint: 'Optional — the voice model ID from your Fish Audio dashboard.' },
+  { key: 'GEMINI_API_KEY',    label: 'Gemini API Key',       placeholder: 'AIza...',          hint: 'Optional — fallback AI model. Get one at aistudio.google.com → Get API Key.' },
 ]
 
 function Toggle({ checked, onChange }) {
@@ -71,11 +71,21 @@ export default function SettingsWindow() {
 
       <div className="sw__body">
 
+        {/* ── First-run welcome banner ───────────────────────────────────── */}
+        {!cfg.ANTHROPIC_API_KEY && (
+          <div className="sw__welcome">
+            <p className="sw__welcome-title">First time? Start here.</p>
+            <p className="sw__welcome-body">
+              Teto needs an Anthropic API key to work. Everything else is optional — Fish Audio gives her a voice, OpenAI enables voice input, and Gemini is a fallback brain.
+            </p>
+          </div>
+        )}
+
         {/* ── API Keys ──────────────────────────────────────────────────── */}
         <div>
           <p className="sw__section-label">API Keys</p>
           <div className="sw__fields">
-            {API_KEY_FIELDS.map(({ key, label, placeholder }) => (
+            {API_KEY_FIELDS.map(({ key, label, placeholder, hint }) => (
               <div className="sw__field" key={key}>
                 <label className="sw__label">{label}</label>
                 <input
@@ -87,6 +97,7 @@ export default function SettingsWindow() {
                   value={cfg[key] || ''}
                   onChange={e => set(key, e.target.value)}
                 />
+                <span className="sw__hint">{hint}</span>
               </div>
             ))}
           </div>

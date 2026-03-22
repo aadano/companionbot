@@ -17,14 +17,18 @@ function stripTags(t) {
 
 export default function ChatInput() {
   const { tetoSpeak, tetoInterrupt, tetoFlash, appendLog } = useTeto()
-  const [input, setInput]         = useState('')
-  const [loading, setLoading]     = useState(false)
+  const [input, setInput]             = useState('')
+  const [loading, setLoading]         = useState(false)
   const [isRecording, setIsRecording] = useState(false)
-  const historyRef    = useRef([])
-  const isRecordingRef = useRef(false)  // ref copy so event handlers never see stale state
-  const loadingRef     = useRef(false)
+  const [errorMsg, setErrorMsg]       = useState('')
 
-  // Keep refs in sync with state
+  const historyRef      = useRef([])
+  const isRecordingRef  = useRef(false)
+  const loadingRef      = useRef(false)
+  const sentHistoryRef  = useRef([])   // messages the user has sent (for up-arrow)
+  const histIdxRef      = useRef(-1)   // -1 = not browsing; 0 = most recent
+  const savedInputRef   = useRef('')   // stashes current input before browsing
+
   function setRecording(val) {
     isRecordingRef.current = val
     setIsRecording(val)
@@ -36,7 +40,6 @@ export default function ChatInput() {
 
   useEffect(() => {
     return () => {
-      // Release mic if component unmounts mid-recording
       if (isRecordingRef.current) stopRecording()
     }
   }, [])
@@ -46,13 +49,28 @@ export default function ChatInput() {
     if (!text || loadingRef.current) return
 
     if (/scariest face/i.test(text)) {
-      if (!overrideText) setInput('')
+      if (!overrideText) { setInput(''); histIdxRef.current = -1 }
       tetoFlash('horror', 2500)
       return
     }
 
+    if (/\byawn\b/i.test(text)) {
+      if (!overrideText) { setInput(''); histIdxRef.current = -1 }
+      tetoFlash('yawn', 3000)
+      return
+    }
+
     resumeScreenWatch()
-    if (!overrideText) setInput('')
+    setErrorMsg('')
+
+    if (!overrideText) {
+      // Push to sent history (keep last 50), reset browse index
+      sentHistoryRef.current = [...sentHistoryRef.current, text].slice(-50)
+      histIdxRef.current = -1
+      savedInputRef.current = ''
+      setInput('')
+    }
+
     setLoadingSync(true)
     appendLog({ role: 'user', text })
 
@@ -69,6 +87,8 @@ export default function ChatInput() {
       tetoSpeak(result.text, result.emotion)
     } catch (err) {
       console.error('[ChatInput] error:', err)
+      setErrorMsg('something went wrong')
+      setTimeout(() => setErrorMsg(''), 3000)
     } finally {
       setLoadingSync(false)
     }
@@ -84,11 +104,13 @@ export default function ChatInput() {
       setRecording(true)
     } catch (err) {
       console.error('[ChatInput] mic access failed:', err)
+      setErrorMsg('mic access denied')
+      setTimeout(() => setErrorMsg(''), 3000)
     }
   }
 
   async function stopPTT() {
-    if (!isRecordingRef.current) return  // idempotent
+    if (!isRecordingRef.current) return
     setRecording(false)
     const blob = await stopRecording()
     if (!blob) return
@@ -98,6 +120,8 @@ export default function ChatInput() {
       if (text) send(text)
     } catch (err) {
       console.error('[ChatInput] transcription failed:', err)
+      setErrorMsg('voice input failed')
+      setTimeout(() => setErrorMsg(''), 3000)
     }
   }
 
@@ -121,11 +145,30 @@ export default function ChatInput() {
       document.removeEventListener('keydown',  onKeyDown)
       document.removeEventListener('keyup',    onKeyUp)
     }
-  }, [])  // empty deps — handlers use refs, so they never go stale
+  }, [])
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   function onKeyDown(e) {
+    // Up-arrow: browse backwards through sent history
+    if (e.key === 'ArrowUp' && !e.shiftKey) {
+      const hist = sentHistoryRef.current
+      if (hist.length === 0) return
+      e.preventDefault()
+      if (histIdxRef.current === -1) savedInputRef.current = input
+      const newIdx = Math.min(histIdxRef.current + 1, hist.length - 1)
+      histIdxRef.current = newIdx
+      setInput(hist[hist.length - 1 - newIdx])
+      return
+    }
+    // Down-arrow: browse forwards (back toward current draft)
+    if (e.key === 'ArrowDown' && histIdxRef.current !== -1) {
+      e.preventDefault()
+      const newIdx = histIdxRef.current - 1
+      histIdxRef.current = newIdx
+      setInput(newIdx === -1 ? savedInputRef.current : sentHistoryRef.current[sentHistoryRef.current.length - 1 - newIdx])
+      return
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       send()
@@ -135,6 +178,12 @@ export default function ChatInput() {
   function openHistory() {
     window.tetoAPI.openChatHistory()
   }
+
+  const placeholder = errorMsg
+    ? errorMsg
+    : loading      ? 'thinking...'
+    : isRecording  ? 'recording...'
+    : 'say something...'
 
   return (
     <div className="chat-input">
@@ -148,11 +197,11 @@ export default function ChatInput() {
           ☰
         </button>
         <input
-          className="chat-input__field"
+          className={`chat-input__field${errorMsg ? ' chat-input__field--error' : ''}`}
           type="text"
-          placeholder={loading ? 'thinking...' : isRecording ? 'recording...' : 'say something...'}
+          placeholder={placeholder}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => { setInput(e.target.value); histIdxRef.current = -1 }}
           onKeyDown={onKeyDown}
           onFocus={pauseScreenWatch}
           onBlur={resumeScreenWatch}

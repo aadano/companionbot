@@ -4,14 +4,39 @@
   height: 400px;
 }
 
-.avatar img {
+/* Animated wrapper — this is the single element all keyframes target.
+   Both the sprite img and the hat overlay live inside it, so they move
+   as one unit with zero phase-drift. */
+.avatar__animated {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar__animated > img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   pointer-events: none;
 }
 
-/* Placeholder shown when no sprite PNGs are present */
+/* ── Hat overlay ─────────────────────────────────────────────────────────── */
+.avatar__hat-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.avatar__hat-wrap img {
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── Placeholder shown when no sprite PNGs are present ───────────────────── */
 .avatar__placeholder {
   width: 100%;
   height: 100%;
@@ -32,87 +57,59 @@
 
 /* ── Expression animations ───────────────────────────────────────────────── */
 
-/* talking applies regardless of emotion */
-.avatar--talking img,
-.avatar--talking .avatar__placeholder {
+.avatar--talking .avatar__animated {
   animation: talking 0.2s ease-in-out infinite alternate;
 }
 
-/* idle — slow breathing float */
-.avatar--idle img,
-.avatar--idle .avatar__placeholder {
+.avatar--idle .avatar__animated {
   animation: breathe 4s ease-in-out infinite;
 }
 
-/* happy — gentle bob */
-.avatar--happy img,
-.avatar--happy .avatar__placeholder {
+.avatar--happy .avatar__animated {
   animation: happy 2s ease-in-out infinite;
 }
 
-/* annoyed — subtle side-to-side sway */
-.avatar--annoyed img,
-.avatar--annoyed .avatar__placeholder {
+.avatar--annoyed .avatar__animated {
   animation: annoyed 1.8s ease-in-out infinite;
 }
 
-/* surprised — quick jump up */
-.avatar--surprised img,
-.avatar--surprised .avatar__placeholder {
+.avatar--surprised .avatar__animated {
   animation: surprised 0.4s ease-out forwards;
 }
 
-/* smug — slow tilt */
-.avatar--smug img,
-.avatar--smug .avatar__placeholder {
+.avatar--smug .avatar__animated {
   animation: smug 3s ease-in-out infinite;
 }
 
-/* sad — slow droop */
-.avatar--sad img,
-.avatar--sad .avatar__placeholder {
+.avatar--sad .avatar__animated {
   animation: sad 3.5s ease-in-out infinite;
 }
 
-/* furious — rapid shake */
-.avatar--furious img,
-.avatar--furious .avatar__placeholder {
+.avatar--furious .avatar__animated {
   animation: furious 0.12s ease-in-out infinite alternate;
 }
 
-/* concerned — slow uncertain sway */
-.avatar--concerned img,
-.avatar--concerned .avatar__placeholder {
+.avatar--concerned .avatar__animated {
   animation: concerned 2.5s ease-in-out infinite;
 }
 
-/* mortified — dramatic recoil */
-.avatar--mortified img,
-.avatar--mortified .avatar__placeholder {
+.avatar--mortified .avatar__animated {
   animation: mortified 0.5s ease-out forwards;
 }
 
-/* curious — gentle head tilt */
-.avatar--curious img,
-.avatar--curious .avatar__placeholder {
+.avatar--curious .avatar__animated {
   animation: curious 3s ease-in-out infinite;
 }
 
-/* sleepy — slow heavy droop */
-.avatar--sleepy img,
-.avatar--sleepy .avatar__placeholder {
+.avatar--sleepy .avatar__animated {
   animation: sleepy 4s ease-in-out infinite;
 }
 
-/* oops — quick wince */
-.avatar--oops img,
-.avatar--oops .avatar__placeholder {
+.avatar--oops .avatar__animated {
   animation: oops 0.4s ease-out forwards;
 }
 
-/* dizzy — slow wobble */
-.avatar--dizzy img,
-.avatar--dizzy .avatar__placeholder {
+.avatar--dizzy .avatar__animated {
   animation: dizzy 0.6s ease-in-out infinite;
 }
 

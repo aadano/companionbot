@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef, createContext, useCont
 import Avatar from './components/Avatar.jsx'
 import ScreenWatch from './components/ScreenWatch.jsx'
 import ChatInput from './components/ChatInput.jsx'
+import HatGallery from './components/HatGallery.jsx'
+import { HATS } from './hats.js'
 import { speak, clearQueue } from './services/tts.js'
 import './styles/App.css'
 
@@ -30,9 +32,15 @@ export default function App() {
   const [muted, setMuted]             = useState(false)
   const [gameMode, setGameMode]       = useState(false)  // ── GAME MODE
   const [showControls, setShowControls] = useState(false)
+  const [showHatGallery, setShowHatGallery] = useState(false)
+  const [hat, setHat]                 = useState(() => localStorage.getItem('teto_hat') || null)
   const [uiOpacity, setUiOpacity]     = useState(1)
   const captionLingerRef              = useRef(null)
   const emotionResetRef               = useRef(null)
+  const lastTalkRef                   = useRef(Date.now())
+  const yawnTimerRef                  = useRef(null)
+  const talkingForYawnRef             = useRef(false)
+  const mutedForYawnRef               = useRef(false)
 
   useEffect(() => {
     window.tetoAPI.onSetEmotion(({ emotion: e, talking: t } = {}) => {
@@ -42,11 +50,34 @@ export default function App() {
     return () => window.tetoAPI.removeEmotionListener()
   }, [])
 
+  // Keep refs in sync for yawn timer (avoids stale closures)
+  useEffect(() => { talkingForYawnRef.current = talking }, [talking])
+  useEffect(() => { mutedForYawnRef.current   = muted   }, [muted])
+  useEffect(() => { if (talking) lastTalkRef.current = Date.now() }, [talking])
+
+  // Idle yawn — fires once every 15–20 min of silence, only when truly idle
+  useEffect(() => {
+    function schedule() {
+      if (yawnTimerRef.current) clearTimeout(yawnTimerRef.current)
+      const delay = (15 + Math.random() * 5) * 60 * 1000
+      yawnTimerRef.current = setTimeout(() => {
+        const silentMs = Date.now() - lastTalkRef.current
+        if (silentMs > 14 * 60 * 1000 && !talkingForYawnRef.current && !mutedForYawnRef.current) {
+          tetoFlash('yawn', 3000)
+        }
+        schedule()
+      }, delay)
+    }
+    schedule()
+    return () => clearTimeout(yawnTimerRef.current)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Return to idle after lingering in a non-idle emotion
   useEffect(() => {
     if (emotionResetRef.current) clearTimeout(emotionResetRef.current)
     if (emotion !== 'idle' && !talking) {
-      emotionResetRef.current = setTimeout(() => setEmotion('idle'), 12000)
+      const delay = emotion === 'yawn' ? 3000 : 12000
+      emotionResetRef.current = setTimeout(() => setEmotion('idle'), delay)
     }
     return () => clearTimeout(emotionResetRef.current)
   }, [emotion, talking])
@@ -65,12 +96,6 @@ export default function App() {
     window.tetoAPI.onSetUiOpacity(v => setUiOpacity(Math.min(1, Math.max(0.1, v))))
     return () => window.tetoAPI.removeUiOpacityListener()
   }, [])
-
-  // Global hotkey: Ctrl+Shift+M → toggle mute
-  useEffect(() => {
-    window.tetoAPI.onToggleMute(toggleMute)
-    return () => window.tetoAPI.removeToggleMuteListener()
-  }, [toggleMute])
 
   const tetoSpeak = useCallback((text, targetEmotion = 'idle') => {
     if (muted) return
@@ -113,22 +138,35 @@ export default function App() {
 
   const toggleMute = useCallback(() => {
     setMuted(m => {
-      if (!m) {
+      const next = !m
+      if (next) {
         if (captionLingerRef.current) clearTimeout(captionLingerRef.current)
         clearQueue()
         setTalking(false)
         setCaption('')
         setCaptionFading(false)
       }
-      return !m
+      window.tetoAPI.syncMuteState(next)
+      return next
     })
   }, [])
+
+  // Global hotkey: Ctrl+Shift+M → toggle mute (must be after toggleMute is defined)
+  useEffect(() => {
+    window.tetoAPI.onToggleMute(toggleMute)
+    return () => window.tetoAPI.removeToggleMuteListener()
+  }, [toggleMute])
 
   return (
     <TetoContext.Provider value={{ tetoSpeak, tetoInterrupt, tetoFlash, appendLog, emotion, talking, muted, toggleMute, setWatchState, gameMode, toggleGameMode }}>
       <div className={`app${showControls ? ' app--controls' : ''}`} style={{ '--ui-opacity': uiOpacity }}>
         <div className="app__avatar">
-          <Avatar emotion={emotion} talking={talking} />
+          <Avatar
+            emotion={emotion} talking={talking}
+            hat={hat}
+            hatTop={HATS.find(h => h.file === hat)?.top ?? 0}
+            hatWidth={HATS.find(h => h.file === hat)?.width ?? 160}
+          />
 
           {/* Always-visible toggle — intentionally outside ui-opacity targeting */}
           <button
@@ -154,6 +192,11 @@ export default function App() {
             >🎮</button>
             {/* ── END GAME MODE ── */}
             <button
+              className={`hat-btn${hat ? ' hat-btn--active' : ''}${showHatGallery ? ' hat-btn--open' : ''}`}
+              onClick={() => setShowHatGallery(s => !s)}
+              title="Accessories"
+            >🎩</button>
+            <button
               className="gear-btn"
               onClick={() => window.tetoAPI.openSettings()}
               title="Settings"
@@ -173,7 +216,10 @@ export default function App() {
                 <p className="caption__text">{caption}</p>
               </div>
             )}
-            {showControls && <ChatInput />}
+            {showControls && (showHatGallery
+              ? <HatGallery hat={hat} setHat={setHat} onClose={() => setShowHatGallery(false)} />
+              : <ChatInput />
+            )}
           </div>
         )}
       </div>

@@ -2,10 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import '../styles/Avatar.css'
 
 // ── Sprite map ────────────────────────────────────────────────────────────────
-// Values can be a single filename string or an array — arrays are picked randomly.
-// Unmapped combos fall back through the chain: emotion_talking → emotion → idle.
 const SPRITE_MAP = {
-  // base emotions
   'idle':        'idle.png',
   'happy':       'wink.png',
   'smug':        'tsundere.png',
@@ -22,7 +19,8 @@ const SPRITE_MAP = {
   'cozy':        'breakfastteto.png',
   'hurt':        'emotionallyhurt-tears.png',
   'pensive':     'pensive-holdinglaptop.png',
-  'horror':      'OIP%20(7).webp',
+  'horror':      'whatsapp-invincible.gif',
+  'yawn':        'teto-yawn.gif',
   // talking variants
   'idle_talking':     'deadpan.png',
   'happy_talking':    'beaming-orhappytalk.png',
@@ -31,7 +29,6 @@ const SPRITE_MAP = {
   'furious_talking':  'furious.png',
 }
 
-// Resolve a sprite map entry to a single filename, picking randomly from arrays
 function pickEntry(entry) {
   if (!entry) return null
   if (Array.isArray(entry)) return entry[Math.floor(Math.random() * entry.length)]
@@ -43,7 +40,6 @@ function buildCandidates(emotion, talking) {
     const picked = pickEntry(SPRITE_MAP[key])
     return picked ? `/sprites/${picked}` : `/sprites/${fallbackName}`
   }
-
   if (talking) {
     return [
       resolve(`${emotion}_talking`, `${emotion}_talking.png`),
@@ -57,18 +53,12 @@ function buildCandidates(emotion, talking) {
   ]
 }
 
-export default function Avatar({ emotion = 'idle', talking = false }) {
+export default function Avatar({ emotion = 'idle', talking = false, hat = null, hatTop = 0, hatWidth = 160 }) {
   const [failedSrcs, setFailedSrcs] = useState(new Set())
 
-  // Reset failed set whenever emotion or talking changes
-  useEffect(() => {
-    setFailedSrcs(new Set())
-  }, [emotion, talking])
+  useEffect(() => { setFailedSrcs(new Set()) }, [emotion, talking])
 
-  // Memoised so the random pick is stable for the duration of each emotion+talking state.
-  // Re-picks only when emotion or talking changes, not on every re-render.
   const candidates = useMemo(() => buildCandidates(emotion, talking), [emotion, talking])
-
   const src = candidates.find((c) => !failedSrcs.has(c))
 
   const handleError = (e) => {
@@ -80,21 +70,36 @@ export default function Avatar({ emotion = 'idle', talking = false }) {
 
   return (
     <div className={`avatar avatar--${animClass}`}>
-      {src ? (
-        <img
-          key={src}
-          src={src}
-          alt={`Teto ${emotion}${talking ? ' talking' : ''}`}
-          onError={handleError}
-          draggable={false}
-        />
-      ) : (
-        <div className="avatar__placeholder">
-          <span className="avatar__placeholder-label">
-            {emotion}{talking ? ' · talking' : ''}
-          </span>
-        </div>
-      )}
+      {/* .avatar__animated is the single element that receives all CSS animations.
+          Both the sprite and the hat live inside it, so they always move together —
+          no phase-sync issues since neither child animates independently. */}
+      <div className="avatar__animated">
+        {src ? (
+          <img
+            key={src}
+            src={src}
+            alt={`Teto ${emotion}${talking ? ' talking' : ''}`}
+            onError={handleError}
+            draggable={false}
+          />
+        ) : (
+          <div className="avatar__placeholder">
+            <span className="avatar__placeholder-label">
+              {emotion}{talking ? ' · talking' : ''}
+            </span>
+          </div>
+        )}
+        {hat && (
+          <div className="avatar__hat-wrap" style={{ top: hatTop }}>
+            <img
+              src={`/sprites/${hat}`}
+              style={{ width: hatWidth }}
+              draggable={false}
+              alt=""
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

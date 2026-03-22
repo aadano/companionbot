@@ -66,6 +66,37 @@ html, body, #root {
   -webkit-app-region: no-drag;
 }
 
+/* ── First-run welcome banner ────────────────────────────────────────────── */
+.sw__welcome {
+  background: rgba(130, 90, 240, 0.1);
+  border: 1px solid rgba(160, 120, 255, 0.25);
+  border-radius: 9px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sw__welcome-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(200, 180, 255, 0.9);
+}
+
+.sw__welcome-body {
+  font-size: 11px;
+  color: rgba(170, 150, 220, 0.75);
+  line-height: 1.5;
+}
+
+/* ── Field hint text ─────────────────────────────────────────────────────── */
+.sw__hint {
+  font-size: 10px;
+  color: rgba(130, 110, 180, 0.5);
+  line-height: 1.4;
+  margin-top: 1px;
+}
+
 /* ── Section ─────────────────────────────────────────────────────────────── */
 .sw__section-label {
   font-size: 10px;
