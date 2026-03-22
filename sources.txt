@@ -1,0 +1,8 @@
+All code written originally during HooHacks 2026 (March 21-22).
+AI assistant (Claude by Anthropic) used for coding assistance throughout the project.
+
+External APIs and services used:
+- Anthropic Claude API (claude-sonnet-4-6, claude-haiku-4-5) — conversation and screen reactions
+- Fish Audio S2 API — voice synthesis
+- OpenAI Whisper API — voice transcription
+- Tavily Search API — web search
