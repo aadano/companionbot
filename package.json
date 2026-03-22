@@ -35,17 +35,11 @@
     "directories": {
       "output": "release"
     },
-    "nsis": {
-      "oneClick": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Teto"
-    },
     "win": {
       "icon": "build/fattetologo.ico",
       "target": [
         {
-          "target": "nsis",
+          "target": "portable",
           "arch": [
             "x64"
           ]

@@ -79,11 +79,17 @@ function createWindow() {
   const defaultX = width - 320
   const defaultY = height - 450
 
+  // Clamp saved position so the window is always on screen
+  const savedX = stored.windowX ?? defaultX
+  const savedY = stored.windowY ?? defaultY
+  const startX = Math.min(Math.max(savedX, 0), width  - 300)
+  const startY = Math.min(Math.max(savedY, 0), height - 430)
+
   mainWindow = new BrowserWindow({
     width: 300,
     height: 430,
-    x: stored.windowX ?? defaultX,
-    y: stored.windowY ?? defaultY,
+    x: startX,
+    y: startY,
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
